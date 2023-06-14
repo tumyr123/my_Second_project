@@ -1,0 +1,261 @@
+import pyautogui as maus
+import keyboard as key
+import pyperclip as bufer
+import telebot as bot
+
+find_color_image = (244, 242, 239)
+image_start = (467,412)
+main_image = (690,525)
+info_image = (472,746)
+info_end_image = (893,856)
+info_X_image = 469
+turn_off_zone = (1413,344)
+
+coordinate_refresh = (83,49)
+coordinate_back = (18,52)
+coordinate_link = (722,51)
+coordinate_nofing = (1478,201)
+coordinate_copy = (739,158)
+
+
+file_history = "history.txt"
+test_str_1 = "72-88-8166"
+test_str_2 = "72-88-8167"
+
+
+image_error = "error.png"
+image_error_mini = "error_mini.png"
+image_anzeige = "anziege.png"
+image_top = "top.png"
+image_top_mini = "top_mini.png"
+image_town = "town.png"
+
+
+# работа с телеграм-ботом
+
+name = ("@sdfsdfsdfsdffdf")
+token = ("6219256409:AAG2GuQhjwFplLHN1FmYvs6HSwzpKnb-Z40")
+bot = bot.TeleBot(token)
+chat_id = name
+def sender(link_page,image_1,image_2):
+    bot.send_message(name, "_______________________________________________________")
+    bot.send_message(name,link_page)
+    bot.send_photo(name, image_1)
+    bot.send_photo(name, image_2)
+    bot.send_message(name, "_______________________________________________________")
+
+
+@bot.message_handler(commands=['/clear'])
+def clear_chat(message):
+    chat_id = message.chat.id
+    message_id = message.message_id
+
+    # Получаем список всех сообщений в чате
+    messages = bot.fetch_all(chat_id)
+
+    # Удаляем каждое сообщение
+    for m in messages:
+        bot.delete_message(chat_id, m.message_id)
+
+    # Удаляем сообщение, которое отправил пользователь
+    bot.delete_message(chat_id, message_id)
+
+# содинительная часть
+def main_func():
+    maus.sleep(10)
+    # mouse_pos_X = maus.position()[0]
+    # print(mouse_pos_X)
+    # # не рабочий тригер выключения программ по мышке
+    # if  mouse_pos_X >= turn_off_zone[0]:
+    #     pass
+    # тригер опасного говна
+    if find_error_image(image_error):
+        refresh_func()
+        main_func()
+    else:
+        return_in()
+        maus.sleep(2)
+        text_buffer = copy_fun()
+        if work_with_link(text_buffer):
+            return_out()
+            main_func()
+        # тригер неприятного говна
+        elif find_error_image(image_top_mini):
+            return_out()
+            # print("no")
+            main_func()
+        else:
+
+            main_screen = general_func()
+            info_screen = info_screen_func(info_X_image,info_end_image)
+
+
+        # main_screen.show()
+        # info_screen.show()
+
+
+            return_out()
+
+            sender(text_buffer,main_screen,info_screen)
+
+            main_func()
+        # return False
+
+
+
+# поиск конца изображения
+def search_end_image(coordinat_start):
+    x = coordinat_start[0]
+    y = coordinat_start[1]
+    pix_move = 10
+    pix = maus.pixel(x,y)
+    # maus.moveTo(x, y )
+
+    while pix != find_color_image:
+        y+=pix_move
+        pix = maus.pixel(x, y)
+        # print(x,y)
+
+    down = y
+    y-=pix_move * 5
+    pix = maus.pixel(x, y)
+
+    while pix != find_color_image:
+        x += pix_move
+        pix = maus.pixel(x,y)
+        # print(x, y)
+
+    right = x
+
+    return right,down
+
+def copy_fun():
+    maus.moveTo(coordinate_link)
+    maus.rightClick()
+    maus.moveTo(coordinate_copy)
+    maus.click()
+    # key.hotkeys('ctrl', 'c')
+    # key.hook_key('ctrl', 'c')
+
+    maus.moveTo(coordinate_nofing)
+    maus.click()
+    # link = bufer.paste()
+    return bufer.paste()
+    # return link
+
+# буливая функция(1 - ссылки одинаковые , 0 - ссылки разные)
+def check_link(alt_link,new_link):
+    for i in range(len(alt_link)):
+        if alt_link[i] != new_link[i]:
+            return False
+    return True
+def work_with_link(link):
+    file = open(file_history,'r')
+    for line in file:
+        alt_link = line
+        break
+    file.close()
+    start = len(link) - 10
+    # print(alt_link)
+    new_link = link[start:len(link)]
+    # print(alt_link)
+    # print(new_link)
+    TrueFalse_link = check_link(alt_link,new_link)
+    if TrueFalse_link:
+        return TrueFalse_link
+    else:
+        file = open(file_history, 'w')
+        file.write(new_link)
+        return TrueFalse_link
+
+
+# поиск изображение ошибки(если она находтися ,то обновление страницы)
+def find_error_image(image):
+    error_image = maus.locateOnScreen(image)
+    if error_image == None:
+        return False
+    else:
+        return True
+
+# поиск изображение в объявление
+def general_func(start_X= 467,start_Y = 412):
+    # start_X = image_x, start_Y = image_y
+    right, down = search_end_image(main_image)
+    image_l = right-start_X
+    image_h = down-start_Y
+    screen = maus.screenshot(region=(start_X,start_Y,image_l,image_h))
+
+    # screen.show()
+    return screen
+
+def info_screen_func(start_coordinat_X,end_coordinat):
+
+    start_X = start_coordinat_X
+    start_Y = search_end_image(main_image)[1]
+    right = end_coordinat[0]
+    down = end_coordinat[1]
+    image_l = right - start_X
+    image_h = down - start_Y
+    screen = maus.screenshot(region=(start_X, start_Y, image_l, image_h))
+    return screen
+
+
+# def check_link():
+
+# кликает на новые объявлений
+def return_in():
+    maus.moveTo(maus_X,maus_Y)
+    maus.click()
+# возвращает на главную страницу
+def return_out():
+    maus.moveTo(coordinate_back)
+    maus.click()
+# обновляет страницу
+def refresh_func():
+    maus.moveTo(coordinate_refresh)
+    maus.click()
+# База
+while True:
+    # 1
+    if key.is_pressed(2):
+        # для динамической настройки(получает координаты мышки в начале работы)
+        maus_X, maus_Y = maus.position()
+        main_func()
+        print(0)
+        maus.sleep(1)
+
+     # 2
+    elif key.is_pressed(3):
+        # test = maus.locateOnScreen(image_error_mini)
+        # if test!=None:
+        #     print(test[0])
+        maus.sleep(1)
+
+        # turn_off = True
+        # print(turn_off)
+        # print("2")
+        # general_func()
+     # 3
+    elif key.is_pressed(4):
+        maus.mouseInfo()
+        # search_end_image()
+        # im = maus.screenshot(region=(0, 0, 300, 400))
+        # im.show()
+        maus.sleep(1)
+
+    elif key.is_pressed(5):
+        # for i in bot.ge
+        # bot.delete_message(name,1)
+        print(bot.get_chat(name))
+        # maus.moveTo(coordinate_link)
+        # print(copy_fun())
+        maus.sleep(1)
+
+        # print(work_with_link(test_str_1))
+        # im = general_func(image_start[0],image_start[1])
+        # im = info_screen_func(info_X_image,info_end_image)
+        # im.show()
+
+
+
+
